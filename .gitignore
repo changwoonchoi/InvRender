@@ -16,7 +16,6 @@ __pycache__/
 .DS_Store
 exps/
 relits/
-*.sh
 
 exps/
 data/
