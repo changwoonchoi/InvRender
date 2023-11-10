@@ -3,12 +3,11 @@ argparse
 numpy
 torch
 torchvision
-pillow
+pillow==5.4.1
 imageio
 imageio-ffmpeg
 opencv-python
-pyhocon
+pyhocon==0.3.55
 ipdb
 tqdm
 tensorboardX
-json

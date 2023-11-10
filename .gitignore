@@ -17,3 +17,6 @@ __pycache__/
 exps/
 relits/
 *.sh
+
+exps/
+data/
