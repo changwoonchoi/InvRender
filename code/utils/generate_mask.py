@@ -17,4 +17,11 @@ if __name__ == "__main__":
             mask_np = mask.astype(np.uint8)
             mask_np *= 255
             imageio.imwrite(f"../data/tensoir/{scene}/train_{i:03d}/mask.png", mask_np)
+        for i in range(200):
+            img = imageio.imread(f"../data/tensoir/{scene}/test_{i:03d}/rgba.png")
+            mask = gen_mask(img)
+            mask_np = mask.astype(np.uint8)
+            mask_np *= 255
+            imageio.imwrite(f"../data/tensoir/{scene}/test_{i:03d}/mask.png", mask_np)
+
 
