@@ -30,9 +30,9 @@ def decode_img(img, batch_size, total_pixels, img_res, is_tonemap=False):
     return img
 
 
-def relit_with_light(model, relit_dataloader, images_dir, 
+def relit_with_light(model, relit_dataloader, images_dir,
                 total_pixels, img_res, albedo_ratio=None, light_type='origin'):
-    
+
     all_frames = []
 
     for data_index, (indices, model_input, ground_truth) in enumerate(relit_dataloader):
@@ -57,7 +57,7 @@ def relit_with_light(model, relit_dataloader, images_dir,
                 'sg_rgb': out['sg_rgb'].detach(),
                 'bg_rgb': out['bg_rgb'].detach(),
             })
-        
+
         out_img_name = '{}'.format(indices[0])
         batch_size = ground_truth['rgb'].shape[0]
         model_outputs = utils.merge_output(res, total_pixels, batch_size)
@@ -73,12 +73,12 @@ def relit_with_light(model, relit_dataloader, images_dir,
         bg_rgb = decode_img(bg_rgb, batch_size, total_pixels, img_res, is_tonemap=True)
         object_mask = model_outputs['network_object_mask'].unsqueeze(0)
         object_mask = plt.lin2img(object_mask.unsqueeze(-1), img_res)[0].permute(1, 2, 0)
-    
+
         ### save sg
         if light_type == 'origin':
             rgb_relit = model_outputs['sg_rgb'] + model_outputs['indir_rgb']
         else:
-            rgb_relit = model_outputs['sg_rgb'] 
+            rgb_relit = model_outputs['sg_rgb']
         rgb_relit = decode_img(rgb_relit, batch_size, total_pixels, img_res, is_tonemap=True)
 
         # envmap background
@@ -148,7 +148,7 @@ def relight_obj(**kwargs):
     model = utils.get_class(conf.get_string('train.model_class'))(conf=conf.get_config('model'))
     if torch.cuda.is_available():
         model.cuda()
-    
+
     # load data
     relit_dataset = utils.get_class(conf.get_string('train.dataset_class'))(
                                     kwargs['data_split_dir'], kwargs['frame_skip'], split='test')
@@ -175,28 +175,35 @@ def relight_obj(**kwargs):
     # with open(os.path.join(relitdir, 'ckpt_path.txt'), 'w') as fp:
     #     fp.write(ckpt_path + '\n')
 
-    # relit_with_light(model, relit_dataloader, images_dir, 
+    # relit_with_light(model, relit_dataloader, images_dir,
     #                 total_pixels, img_res, albedo_ratio=None, light_type='origin')
 
-
-    envmap6_path = './envmaps/envmap6'
-    print('Loading light from: ', envmap6_path)
-    model.envmap_material_network.load_light(envmap6_path)
-    images_dir = relitdir + '_envmap6_relit'
+    images_dir = relitdir + '_origin'
     utils.mkdir_ifnotexists(images_dir)
     print('Output directory is: ', images_dir)
 
-    relit_with_light(model, relit_dataloader, images_dir, 
-                    total_pixels, img_res, albedo_ratio=None, light_type='envmap6')
-    
-    envmap12_path = './envmaps/envmap12'
-    print('Loading light from: ', envmap12_path)
-    model.envmap_material_network.load_light(envmap12_path)
-    images_dir = relitdir + '_envmap12_relit'
-    utils.mkdir_ifnotexists(images_dir)
-    print('Output directory is: ', images_dir)
-    relit_with_light(model, relit_dataloader, images_dir, 
-                    total_pixels, img_res, albedo_ratio=None, light_type='envmap12')
+    relit_with_light(model, relit_dataloader, images_dir,
+                     total_pixels, img_res, albedo_ratio=None, light_type='origin')
+
+
+    # envmap6_path = './envmaps/envmap6'
+    # print('Loading light from: ', envmap6_path)
+    # model.envmap_material_network.load_light(envmap6_path)
+    # images_dir = relitdir + '_envmap6_relit'
+    # utils.mkdir_ifnotexists(images_dir)
+    # print('Output directory is: ', images_dir)
+
+    # relit_with_light(model, relit_dataloader, images_dir,
+    #                 total_pixels, img_res, albedo_ratio=None, light_type='envmap6')
+    #
+    # envmap12_path = './envmaps/envmap12'
+    # print('Loading light from: ', envmap12_path)
+    # model.envmap_material_network.load_light(envmap12_path)
+    # images_dir = relitdir + '_envmap12_relit'
+    # utils.mkdir_ifnotexists(images_dir)
+    # print('Output directory is: ', images_dir)
+    # relit_with_light(model, relit_dataloader, images_dir,
+    #                 total_pixels, img_res, albedo_ratio=None, light_type='envmap12')
 
 
 if __name__ == '__main__':
